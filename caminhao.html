@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>CNH - Caminhão</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    .banner {
+      width: 100%;
+      height: 128px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .titulo {
+      margin-top: 30px;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .questao {
+      margin: 30px auto;
+      width: 80%;
+      text-align: left;
+      background-color: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #444;
+    }
+
+    .questao h3 {
+      margin-bottom: 15px;
+    }
+
+    .opcao {
+      background-color: #2a2a2a;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .opcao:hover {
+      background-color: #3a3a3a;
+    }
+
+    .certa {
+      background-color: green !important;
+    }
+
+    .errada {
+      background-color: red !important;
+    }
+
+    #resultado {
+      margin-top: 40px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    #continuar {
+      margin-top: 20px;
+      padding: 12px 25px;
+      font-size: 16px;
+      background-color: #00BFFF;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <img src="imgbannerbetahills/bannerbetahills.png" alt="Banner CNH" class="banner">
+  <div class="titulo">C: Caminhão 🚛</div>
+
+  <!-- Campo de nome do aluno -->
+  <div id="form-nome" style="text-align: center; margin-top: 20px;">
+    <label for="nomeAluno" style="color: white;">Digite seu nome:</label><br><br>
+    <input type="text" id="nomeAluno" placeholder="Seu nome..." style="padding: 8px; border-radius: 5px;"><br><br>
+    <button onclick="iniciarProva()" style="padding: 8px 16px; cursor: pointer;">Começar Prova</button>
+  </div>
+
+  <div id="quiz" style="display: none;"></div>
+  <div id="resultado"></div>
+
+  <script>
+    const perguntas = [
+      {
+        pergunta: "1. Qual o peso bruto total mínimo para exigir CNH categoria C?",
+        opcoes: ["3.500 kg", "4.000 kg", "6.000 kg", "Mais de 3.500 kg"],
+        correta: 3
+      },
+      {
+        pergunta: "2. O condutor da categoria C pode dirigir quais veículos?",
+        opcoes: ["Apenas carros", "Motocicletas e triciclos", "Veículos com mais de 3.500 kg", "Ônibus escolares"],
+        correta: 2
+      },
+      {
+        pergunta: "3. Qual o procedimento ao transportar carga mal acondicionada?",
+        opcoes: ["Ignorar", "Acelerar mais", "Corrigir o acondicionamento", "Trocar de veículo"],
+        correta: 2
+      },
+      {
+        pergunta: "4. Qual documento é obrigatório para o transporte de carga?",
+        opcoes: ["CRLV", "Nota fiscal", "Carteira de trabalho", "CNH original"],
+        correta: 1
+      },
+      {
+        pergunta: "5. O que o condutor deve verificar antes de iniciar uma viagem com caminhão?",
+        opcoes: ["Apenas o combustível", "Pressão dos pneus e freios", "A cor da lataria", "O banco do passageiro"],
+        correta: 1
+      },
+      {
+        pergunta: "6. Qual é a principal função do tacógrafo?",
+        opcoes: ["Gravar velocidade e tempo de direção", "GPS do caminhão", "Medir pressão dos pneus", "Emitir som ao frear"],
+        correta: 0
+      },
+      {
+        pergunta: "7. Como deve ser feita a sinalização em caso de pane na rodovia?",
+        opcoes: ["Ligar o pisca alerta e usar o triângulo", "Esperar ajuda sem sinalizar", "Acenar com o braço", "Buzinar para os outros"],
+        correta: 0
+      },
+      {
+        pergunta: "8. Quando é permitido ultrapassar outro caminhão em faixa contínua?",
+        opcoes: ["Em qualquer momento", "Se estiver com pressa", "Nunca", "Se o outro veículo permitir"],
+        correta: 2
+      },
+      {
+        pergunta: "9. É permitido conduzir caminhão com CNH categoria B?",
+        opcoes: ["Sim, sempre", "Sim, se for pequeno", "Não, apenas com categoria C ou superior", "Sim, com autorização especial"],
+        correta: 2
+      },
+      {
+        pergunta: "10. O que deve ser feito ao descer uma serra com caminhão carregado?",
+        opcoes: ["Descer em ponto morto", "Usar apenas o freio de mão", "Usar marchas reduzidas e freio motor", "Acelerar forte"],
+        correta: 2
+      }
+    ];
+
+    let acertos = 0;
+    let erros = 0;
+    let nomeAluno = "";
+
+    const quizDiv = document.getElementById("quiz");
+    const resultadoDiv = document.getElementById("resultado");
+
+    function iniciarProva() {
+      const inputNome = document.getElementById("nomeAluno").value.trim();
+      if (inputNome === "") {
+        alert("Por favor, digite seu nome para começar.");
+        return;
+      }
+
+      nomeAluno = inputNome;
+      document.getElementById("form-nome").style.display = "none";
+      quizDiv.style.display = "block";
+
+      carregarQuestoes();
+    }
+
+    function carregarQuestoes() {
+      perguntas.forEach((perg, i) => {
+        const bloco = document.createElement("div");
+        bloco.className = "questao";
+        const titulo = document.createElement("h3");
+        titulo.innerText = perg.pergunta;
+        bloco.appendChild(titulo);
+
+        perg.opcoes.forEach((texto, j) => {
+          const opc = document.createElement("div");
+          opc.className = "opcao";
+          opc.innerText = texto;
+          opc.onclick = () => {
+            if (opc.classList.contains("certa") || opc.classList.contains("errada")) return;
+
+            if (j === perg.correta) {
+              opc.classList.add("certa");
+              acertos++;
+            } else {
+              opc.classList.add("errada");
+              erros++;
+            }
+
+            Array.from(opc.parentNode.querySelectorAll(".opcao")).forEach(el => {
+              el.onclick = null;
+              if (el !== opc && perg.opcoes.indexOf(el.innerText) === perg.correta) {
+                el.classList.add("certa");
+              }
+            });
+
+            verificarResultado();
+          };
+          bloco.appendChild(opc);
+        });
+
+        quizDiv.appendChild(bloco);
+      });
+    }
+
+    function verificarResultado() {
+      if (acertos >= 8 || erros >= 3 || acertos + erros === perguntas.length) {
+        quizDiv.style.display = "none";
+        resultadoDiv.innerHTML = "";
+
+        if (acertos >= 8) {
+          resultadoDiv.innerHTML = `
+            <div style="color: #00FF00;">
+              🎉 Parabéns, ${nomeAluno}! Você passou na teórica!<br><br>
+              Agora clique no botão abaixo para continuar.
+            </div>
+            <a id="continuar" href="https://discord.gg/a4xUpjPs" target="_blank">Continuar</a>
+          `;
+          enviarParaDiscord("aprovado ✅");
+        } else {
+          resultadoDiv.innerHTML = `<div style="color: red;">❌ ${nomeAluno}, você foi reprovado. Tente novamente em outra oportunidade.</div>`;
+          enviarParaDiscord("reprovado ❌");
+        }
+      }
+    }
+
+    function enviarParaDiscord(status) {
+      const webhookUrl = "https://discord.com/api/webhooks/1372662288850616400/NVE06rh0x6sOVSMk84VEWt-fCVtkGV8xVh7SM5OLQMFgGpcKyZRt-rbA4wI0o8aOplQW";
+      const data = {
+        content: `📢 O aluno **${nomeAluno}** foi **${status}** na prova teórica de CNH C (Caminhão).`,
+        username: "CNH BETA HiLLs Bot"
+      };
+
+      fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      }).catch((error) => console.error("Erro ao enviar webhook:", error));
+    }
+  </script>
+</body>
+</html>
